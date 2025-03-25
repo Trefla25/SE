@@ -1,1 +1,1 @@
-# SE
+# Proiect SE
