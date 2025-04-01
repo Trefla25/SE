@@ -9,7 +9,6 @@ using SmartFridge.Database;
 
 namespace SmartFridge.Migrations
 {
-    [DbContext(typeof(SmartFridgeDbContext))]
     [Migration("20250325175636_SeedData")]
     partial class SeedData
     {

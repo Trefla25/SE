@@ -8,7 +8,6 @@ using SmartFridge.Database;
 
 namespace SmartFridge.Migrations
 {
-    [DbContext(typeof(SmartFridgeDbContext))]
     partial class SmartFridgeDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

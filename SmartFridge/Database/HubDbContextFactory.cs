@@ -16,21 +16,10 @@ public class HubDbContextFactory
     {
         var services = new ServiceCollection();
 
-        // Register both DbContexts
-        services.AddDbContext<SmartFridgeDbContext>(options =>
-            options.UseSqlite("Data Source=smartfridge.db"));
-
         services.AddDbContext<UserIngredientsDbContext>(options =>
             options.UseSqlite("Data Source=useringredients.db"));
 
         _serviceProvider = services.BuildServiceProvider();
-    }
-
-    public SmartFridgeDbContext CreateSmartFridgeDbContext()
-    {
-        var dbContext = _serviceProvider.GetRequiredService<SmartFridgeDbContext>();
-        dbContext.Database.EnsureCreated(); 
-        return dbContext;
     }
 
     public UserIngredientsDbContext CreateUserIngredientsDbContext()

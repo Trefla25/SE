@@ -1,4 +1,7 @@
-﻿using SmartFridge.Database;
+﻿using Microsoft.Extensions.Configuration;
+using SmartFridge.Database;
+using SmartFridge.Service;
+using System.Net.Http;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,15 +21,18 @@ namespace SmartFridge;
 public partial class MainWindow : Window
 {
     private readonly HubDbContextFactory _dbFactory;
-    private readonly SmartFridgeDbContext _recipeDb;
     private readonly UserIngredientsDbContext _userDb;
+
+    private readonly RecipeRecommendationService _recipeService;
 
     public MainWindow()
     {
         InitializeComponent();
 
         _dbFactory = new HubDbContextFactory();
-        _recipeDb = _dbFactory.CreateSmartFridgeDbContext();
+
+        _recipeService = new RecipeRecommendationService(new HttpClient());
+
         _userDb = _dbFactory.CreateUserIngredientsDbContext();
     }
 
@@ -57,26 +63,12 @@ public partial class MainWindow : Window
         ingredientsWindow.ShowDialog();
     }
 
-    private void SearchRecipes_Click(object sender, RoutedEventArgs e)
+    private async void SearchRecipes_Click(object sender, RoutedEventArgs e)
     {
         var userIngredients = _userDb.Ingrediente.Select(i => i.Nume.ToLower()).ToList();
+        string recipes = await _recipeService.GetRecipeRecommendations(userIngredients);
 
-        var matchingRecipes = _recipeDb.Retete
-            .AsEnumerable() // Forces EF to execute the query in-memory
-            .Where(recipe =>
-                recipe.IngredienteNecesare.Split(',')
-                    .All(ingredient => userIngredients.Contains(ingredient.Trim().ToLower())))
-            .Select(r => r.Nume)
-            .ToList();
-
-        if (matchingRecipes.Any())
-        {
-            lstRecipes.ItemsSource = matchingRecipes;
-        }
-        else
-        {
-            MessageBox.Show("Nu s-au găsit rețete potrivite!", "Informație", MessageBoxButton.OK, MessageBoxImage.Information);
-            lstRecipes.ItemsSource = null;
-        }
+        var recipesWindow = new RecipesWindow(recipes);
+        recipesWindow.ShowDialog();
     }
 }
